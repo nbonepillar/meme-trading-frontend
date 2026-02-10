@@ -73,7 +73,7 @@ let isTransactionIntentionalClose = false;
 
 const MAX_RECONNECT_DELAY = 30000;
 const BASE_DELAY = 1000;
-const transactionWsUrl = process.env.NEXT_PUBLIC_TRANSACTIONS_WS_URL || 'ws://192.168.1.47:8081/ws';
+const transactionWsUrl = process.env.NEXT_PUBLIC_TRANSACTIONS_WS_URL!;
 
 const getReconnectDelay = (attempt: number): number => {
   const exponentialDelay = Math.min(BASE_DELAY * Math.pow(2, attempt), MAX_RECONNECT_DELAY);

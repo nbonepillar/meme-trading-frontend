@@ -56,7 +56,7 @@ export class MockApiClient {
   private onInitialData?: (data: { candles: CandleData[], trades: TradeData[], token: TokenData }) => void;
   private onConnectionChange?: (connected: boolean) => void;
 
-  constructor(baseUrl: string = 'http://192.168.1.47:8080') {
+  constructor(baseUrl: string = process.env.NEXT_PUBLIC_API_URL!) {
     this.baseUrl = baseUrl;
     this.wsUrl = baseUrl.replace('http', 'ws');
   }

@@ -2,6 +2,41 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### 1. Environment Setup
+
+First, create a `.env.local` file by copying the example file:
+
+```bash
+copy .env.local.example .env.local
+```
+
+Then, update the environment variables in `.env.local` with your backend server URLs:
+
+```env
+# Backend Server Configuration (REQUIRED)
+NEXT_PUBLIC_API_URL=http://your-backend-url:8080
+
+# WebSocket Configuration (REQUIRED)
+NEXT_PUBLIC_WS_URL=ws://your-backend-url:8081/ws
+NEXT_PUBLIC_TRENCHES_WS_URL=ws://your-backend-url:8081/ws
+NEXT_PUBLIC_CHART_WS_URL=ws://your-backend-url:8081/ws
+NEXT_PUBLIC_TRANSACTIONS_WS_URL=ws://your-backend-url:8081/ws
+NEXT_PUBLIC_TRADES_WS_URL=ws://your-backend-url:8081/ws
+
+# GraphQL Configuration (REQUIRED)
+NEXT_PUBLIC_GRAPHQL_ENDPOINT=http://your-backend-url:8080/graphql
+```
+
+**Important:** All WebSocket URLs are required for the application to function properly.
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Run Development Server
+
 First, run the development server:
 
 ```bash

@@ -30,7 +30,7 @@ export function useTokenMetrics(tokenAddress: string | undefined) {
 
     const connectWebSocket = () => {
       try {
-        const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://192.168.1.47:8081/ws';
+        const wsUrl = process.env.NEXT_PUBLIC_WS_URL!;
         wsRef.current = new WebSocket(wsUrl);
 
         wsRef.current.onopen = () => {

@@ -143,7 +143,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     if (isOpen && localTokens.length === 0 && defaultTokens.length === 0) {
       const fetchDefaultTokens = async () => {
         try {
-          const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://192.168.1.47:8080';
+          const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
           // Fetch popular or recent tokens as default
           const response = await fetch(`${API_BASE_URL}/api/tokens/search?keyword=`);
           const data = await response.json();
@@ -169,7 +169,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
     setIsSearching(true);
     try {
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://192.168.1.47:8080';
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
       const response = await fetch(`${API_BASE_URL}/api/tokens/search?keyword=${encodeURIComponent(keyword)}`);
       const data = await response.json();
       

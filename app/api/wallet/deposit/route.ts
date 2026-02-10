@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Forward the request to the backend with params
-    const backendUrl = `http://192.168.1.47:8080/api/wallet/deposit?${params.toString()}`;
+    const backendUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/wallet/deposit?${params.toString()}`;
     
     console.log('Forwarding request to:', backendUrl);
     

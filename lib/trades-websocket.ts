@@ -240,7 +240,7 @@ class TradesWebSocketService {
 }
 
 // Global instance
-const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://192.168.1.47:8081/ws';
+const wsUrl = process.env.NEXT_PUBLIC_TRADES_WS_URL!;
 const tradesWebSocketService = new TradesWebSocketService(wsUrl);
 
 export default tradesWebSocketService;

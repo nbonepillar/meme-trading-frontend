@@ -38,8 +38,8 @@ interface WebSocketMessage {
   data: any;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://192.168.1.47:8080';
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://192.168.1.47:8081/ws';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL!;
 
 export class ApiClient {
   private ws: WebSocket | null = null;

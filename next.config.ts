@@ -33,10 +33,11 @@ const nextConfig: NextConfig = {
   },
   // Add rewrites for API proxy to bypass CORS
   async rewrites() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
     return [
       {
         source: '/api/backend/:path*',
-        destination: 'http://192.168.1.47:8080/api/:path*',
+        destination: `${apiUrl}/api/:path*`,
       },
     ];
   },

@@ -54,7 +54,7 @@ export default function DepositModal({ isOpen, onClose }: DepositModalProps) {
       });
 
       // Direct call to backend (CORS now handled by backend)
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://192.168.1.47:8080';
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
       const response = await fetch(`${API_BASE_URL}/api/wallet/deposit?${params.toString()}`, {
         method: 'GET',
         headers: {

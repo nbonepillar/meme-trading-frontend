@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward the request to the backend
-    const backendUrl = 'http://192.168.1.47:8080/api/wallet/withdraw';
+    const backendUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/wallet/withdraw`;
     
     console.log('Forwarding withdraw request to:', backendUrl);
     console.log('Request body:', body);

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://192.168.1.47:8080';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
 
 export async function GET(request: NextRequest) {
   try {

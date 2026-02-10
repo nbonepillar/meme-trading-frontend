@@ -52,7 +52,7 @@ export function useTokenDetailWebSocket(tokenAddress: string, chainId: number) {
   useEffect(() => {
     if (!tokenAddress) return;
 
-    const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://192.168.1.47:8081/ws';
+    const WS_URL = process.env.NEXT_PUBLIC_WS_URL!;
     console.log('[useTokenDetailWebSocket] Connecting to:', WS_URL, 'for token:', tokenAddress, 'chainId:', chainId);
 
     let ws: WebSocket | null = null;

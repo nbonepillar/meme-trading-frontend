@@ -1,7 +1,7 @@
 // Portfolio API Client Functions
 
 // Always use the backend server directly
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://192.168.1.47:8080';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
 
 console.log('[portfolio-api] API_BASE_URL:', API_BASE_URL);
 

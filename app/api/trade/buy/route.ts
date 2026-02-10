@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get backend URL from environment
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://192.168.1.47:8080';
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL!;
     
     // Get authorization header from request
     const authHeader = request.headers.get('authorization');

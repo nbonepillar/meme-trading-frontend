@@ -126,7 +126,7 @@ const TokenTradingPanel = memo(function TokenTradingPanel() {
     const connectWebSocket = () => {
       try {
         // Use the same WebSocket URL as other components
-        const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://192.168.1.47:8081/ws';
+        const wsUrl = process.env.NEXT_PUBLIC_WS_URL!;
         console.log('[TokenTradingPanel] Connecting to WebSocket:', wsUrl);
         wsRef.current = new WebSocket(wsUrl);
 
@@ -283,7 +283,7 @@ const TokenTradingPanel = memo(function TokenTradingPanel() {
         }
 
         // Direct call to backend (CORS now handled by backend)
-        const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://192.168.1.47:8080';
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
         const response = await fetch(`${API_BASE_URL}/api/trade/buy`, {
           method: 'POST',
           headers,
@@ -338,7 +338,7 @@ const TokenTradingPanel = memo(function TokenTradingPanel() {
         }
 
         // Direct call to backend (CORS now handled by backend)
-        const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://192.168.1.47:8080';
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
         const response = await fetch(`${API_BASE_URL}/api/trade/sell`, {
           method: 'POST',
           headers,
