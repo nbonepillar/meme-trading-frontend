@@ -1,0 +1,193 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: oklch(0.04 0 0);
+  --color-foreground: oklch(1 0 0);
+  --color-border: oklch(0.16 0 0);
+  --color-card: oklch(0.08 0 0);
+  --color-card-foreground: oklch(1 0 0);
+  --color-primary: oklch(0.46 0.15 166);
+  --color-primary-foreground: oklch(0 0 0);
+  --color-secondary: oklch(0.12 0 0);
+  --color-secondary-foreground: oklch(0.88 0 0);
+  --color-muted: oklch(0.16 0 0);
+  --color-muted-foreground: oklch(0.63 0 0);
+  --color-accent: oklch(0.12 0.02 166);
+  --color-accent-foreground: oklch(0.88 0.02 166);
+  --color-destructive: oklch(0.6 0.2 0);
+  --color-destructive-foreground: oklch(1 0 0);
+  --color-input: oklch(0.16 0 0);
+  --color-ring: oklch(0.46 0.15 166);
+  --color-chart-1: oklch(0.46 0.15 166);
+  --color-chart-2: oklch(0.45 0.15 142);
+  --color-chart-3: oklch(0.5 0.12 186);
+  --color-chart-4: oklch(0.5 0.12 150);
+  --color-chart-5: oklch(0.48 0.12 165);
+  
+  /* gmgn.ai style variables */
+  --color-bg-100: 17 18 20;
+  --color-bg-200: 22 23 26;
+  --color-text-100: 255 255 255;
+  --color-text-200: 200 200 200;
+  --color-text-300: 150 150 150;
+  --color-text-400: 100 100 100;
+  --color-text-hightlightbtn: 0 255 163;
+  --color-line-100: 39 40 46;
+  --color-primary: 0 255 163;
+  --color-hover-100: 39 40 46;
+  --color-toggle-bg-100: 39 40 46;
+  --color-btn-secondary: 39 40 46;
+  --color-increase-100: 0 255 163;
+  --color-increase-200: 134 217 159;
+  --color-decrease-200: 242 102 130;
+  --color-green-400: 0 255 163;
+  --color-green-200: 134 217 159;
+  --color-red-400: 255 102 130;
+  --color-red-200: 242 102 130;
+
+  /* custom font & back colors */
+  --color-custom-border: rgb(39, 40, 46);
+  --color-second-font-color: rgb(117, 126, 128);
+  --color-second-back: rgb(31, 32, 36);
+  --color-ptab-back: rgb(35, 37, 41);
+  --color-ptab-text: rgb(134, 217, 159);
+  --color-ptab-hover-back: rgb(40, 42, 46);
+  --color-lightning-back: rgb(242, 102, 130);
+  
+  /* Custom wallet action button colors */
+  --color-wallet-btn-bg: 27 34 30;
+  --color-wallet-btn-bg-hover: 34 46 39;
+  --color-wallet-btn-icon: 134 217 159;
+  --color-wallet-btn-text: 255 255 255;
+  
+  --font-family-sans: Inter, -apple-system, system-ui, sans-serif;
+  --font-family-mono: "JetBrains Mono", Consolas, monospace;
+  
+  --radius: 0.5rem;
+}
+
+:root {
+  --button-outline: rgba(0,0,0, .10);
+  --badge-outline: rgba(0,0,0, .05);
+  --opaque-button-border-intensity: -8;
+  --elevate-1: rgba(0,0,0, .03);
+  --elevate-2: rgba(0,0,0, .08);
+}
+
+.dark {
+  --button-outline: rgba(255,255,255, .10);
+  --badge-outline: rgba(255,255,255, .05);
+  --opaque-button-border-intensity: 9;
+  --elevate-1: rgba(255,255,255, .04);
+  --elevate-2: rgba(255,255,255, .09);
+}
+
+body {
+  font-family: var(--font-family-sans);
+  -webkit-font-smoothing: antialiased;
+  background-color: rgb(12, 12, 15);
+  color: var(--color-foreground);
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+  display: none;
+}
+
+.no-default-hover-elevate {}
+.no-default-active-elevate {}
+
+.toggle-elevate::before,
+.toggle-elevate-2::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0px;
+  border-radius: inherit;
+  z-index: -1;
+}
+
+.toggle-elevate.toggle-elevated::before {
+  background-color: var(--elevate-2);
+}
+
+.border.toggle-elevate::before {
+  inset: -1px;
+}
+
+.hover-elevate:not(.no-default-hover-elevate),
+.active-elevate:not(.no-default-active-elevate),
+.hover-elevate-2:not(.no-default-hover-elevate),
+.active-elevate-2:not(.no-default-active-elevate) {
+  position: relative;
+  z-index: 0;
+}
+
+.hover-elevate:not(.no-default-hover-elevate)::after,
+.active-elevate:not(.no-default-active-elevate)::after,
+.hover-elevate-2:not(.no-default-hover-elevate)::after,
+.active-elevate-2:not(.no-default-active-elevate)::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0px;
+  border-radius: inherit;
+  z-index: 999;
+}
+
+.hover-elevate:hover:not(.no-default-hover-elevate)::after,
+.active-elevate:active:not(.no-default-active-elevate)::after {
+  background-color: var(--elevate-1);
+}
+
+.hover-elevate-2:hover:not(.no-default-hover-elevate)::after,
+.active-elevate-2:active:not(.no-default-active-elevate)::after {
+  background-color: var(--elevate-2);
+}
+
+.border.hover-elevate:not(.no-hover-interaction-elevate)::after,
+.border.active-elevate:not(.no-active-interaction-elevate)::after,
+.border.hover-elevate-2:not(.no-hover-interaction-elevate)::after,
+.border.active-elevate-2:not(.no-active-interaction-elevate)::after {
+  inset: -1px;
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333333;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #444444;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #333333 #000000;
+}
+
+/* Toast animation */
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}

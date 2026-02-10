@@ -1,0 +1,369 @@
+export const formatNumber = (num: number | undefined): string => {
+  if (!num || num === 0) return '0';
+  if (num >= 1000000000) return `${(num / 1000000000).toFixed(1)}B`;
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+  return num.toFixed(0);
+};
+
+// Format market cap - divide by 10^6 first, then format
+export const formatMarketCapDisplay = (mc: number | undefined): string => {
+  if (!mc || mc === 0) return '0';
+  // Divide by 10^6 first
+  const adjustedMc = mc / 1e6;
+  if (adjustedMc >= 1000000) return `${(adjustedMc / 1000000).toFixed(1)}M`;
+  if (adjustedMc >= 1000) return `${(adjustedMc / 1000).toFixed(1)}K`;
+  return adjustedMc.toFixed(1);
+};
+
+export const formatPrice = (price: number | undefined): string => {
+  if (!price || price === 0) return '0.00';
+  if (price >= 1) return `${price.toFixed(2)}`;
+  if (price >= 0.01) return `${price.toFixed(4)}`;
+  return `${price.toFixed(6)}`;
+};
+
+export const formatAddress = (address: string): string => {
+  if (address.length < 8) return address;
+  return `${address.slice(0, 4)}...${address.slice(-4)}`;
+};
+
+export const formatPercentage = (percentage: number | undefined): string => {
+  if (percentage === undefined || percentage === null) return '0%';
+  const sign = percentage >= 0 ? '+' : '';
+  return `${sign}${percentage.toFixed(2)}%`;
+};
+
+export const formatTimeAgo = (timestamp: number): string => {
+  const now = Date.now();
+  const diff = now - timestamp;
+  
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  
+  if (days > 0) return `${days}d`;
+  if (hours > 0) return `${hours}h`;
+  if (minutes > 0) return `${minutes}m`;
+  return `${seconds}s`;
+};
+
+const toSubscript = (num: number): string => {
+  const map: Record<string, string> = {
+    '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
+    '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉',
+  };
+
+  return num.toString().split('').map(d => map[d]).join('');
+};
+
+// gmgn.ai style price formatting with subscript zeros
+export const formatPriceGmgn = (price: number | undefined): string => {
+  if (!price || price === 0) return '0.00';
+  
+  // For prices >= 0.01, show normally
+  if (price >= 0.01) {
+    return price.toFixed(price >= 1 ? 2 : 4);
+  }
+  
+  // For very small prices, use gmgn format
+  const priceStr = price.toString();
+  const decimalIndex = priceStr.indexOf('.');
+  
+  if (decimalIndex === -1) {
+    return price.toString();
+  }
+  
+  // Count leading zeros after decimal point
+  let zeroCount = 0;
+  for (let i = decimalIndex + 1; i < priceStr.length; i++) {
+    if (priceStr[i] === '0') {
+      zeroCount++;
+    } else {
+      break;
+    }
+  }
+
+  const subZero = toSubscript(zeroCount);
+  
+  // If 3 or more zeros, use gmgn format: 0.0₃519
+  if (zeroCount >= 3) {
+    const significantPart = priceStr.substring(decimalIndex + 1 + zeroCount);
+    // Take first 3-4 significant digits
+    const displayPart = significantPart.substring(0, 3);
+    return `0.0${subZero}${displayPart}`;
+  }
+  
+  // Otherwise show normally
+  return price.toFixed(6);
+};
+
+// Transaction amount formatting: amount_token/10000 with 1 decimal place + M suffix
+export const formatTransactionAmount = (amountToken: number): string => {
+  const amount = amountToken / 10000;
+  return `${Math.round(amount * 10) / 10}M`;
+};
+
+// NEW: Format transaction amount in K (divide by 1e9)
+export const formatTransactionAmountK = (amountToken: number): string => {
+  const amount = amountToken / 1e9;
+  if (amount >= 1000) {
+    return `${(amount / 1000).toFixed(1)}M`;
+  }
+  return `${amount.toFixed(1)}K`;
+};
+
+// Transaction USD calculation: amount_native/1e9 gives lamports, then divide by 1e9 again to get SOL
+export const calculateTransactionUSD = (amountNative: number, solPrice: number = 90): number => {
+  // First division gets lamports, second division gets SOL
+  const lamports = amountNative / 1e9;
+  const solAmount = lamports / 1e9;
+  return solAmount * solPrice;
+};
+
+// NEW: Simple USD calculation (divide by 1e9 only)
+export const calculateTransactionUSDSimple = (amountNative: number): number => {
+  return amountNative / 1e9;
+};
+
+// Format USD value for display
+export const formatUSD = (value: number): string => {
+  if (value >= 1000000) {
+    return `${(value / 1000000).toFixed(2)}M`;
+  }
+  if (value >= 1000) {
+    return `${(value / 1000).toFixed(2)}K`;
+  }
+  if (value >= 1) {
+    return `${value.toFixed(2)}`;
+  }
+  return `${value.toFixed(4)}`;
+};
+
+// Format lifetime duration from timestamp
+export const formatLifetime = (timestamp: number): string => {
+  const now = Date.now();
+  // Check if timestamp is in seconds or milliseconds
+  // If timestamp is much smaller than current time, it's likely in seconds
+  const timestampMs = timestamp < 1e12 ? timestamp * 1000 : timestamp;
+  const diffMs = now - timestampMs;
+  
+  const seconds = Math.floor(diffMs / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  
+  if (days > 0) {
+    const remainingHours = hours % 24;
+    return remainingHours > 0 ? `${days}d ${remainingHours}h` : `${days}d`;
+  }
+  if (hours > 0) {
+    const remainingMinutes = minutes % 60;
+    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+  }
+  if (minutes > 0) {
+    const remainingSeconds = seconds % 60;
+    return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
+  }
+  return `${seconds}s`;
+};
+
+// Calculate market cap from price and supply
+// MC = Price * Total Supply
+export const calculateMarketCap = (price: number, supply: number): number => {
+  return price * supply;
+};
+
+// Format market cap for display
+export const formatMarketCap = (marketCap: number | undefined): string => {
+  if (!marketCap || marketCap === 0) return '$0';
+  if (marketCap >= 1000000) return `${(marketCap / 1000000).toFixed(2)}M`;
+  if (marketCap >= 1000) return `${(marketCap / 1000).toFixed(2)}K`;
+  return `${marketCap.toFixed(2)}`;
+};
+
+// Format market cap from trades (divide by 1e6 first, then format with K/M)
+export const formatTradeMarketCap = (mc: number | undefined): string => {
+  if (!mc || mc === 0) return '$0';
+  
+  // Divide by 1e6 first
+  const adjustedMc = mc / 1e6;
+  
+  // Then format with K/M
+  if (adjustedMc >= 1000000) {
+    return `${(adjustedMc / 1000000).toFixed(2)}M`;
+  }
+  if (adjustedMc >= 1000) {
+    return `${(adjustedMc / 1000).toFixed(2)}K`;
+  }
+  return `${adjustedMc.toFixed(2)}`;
+}
+
+// ============================================
+// New Calculation Functions for Unified API
+// ============================================
+
+const SOL_PRICE = 85; // SOL price in USD
+const BNB_PRICE = 630; // BNB price in USD
+
+/**
+ * Calculate bought amount in USD and average price
+ */
+export const calculateBought = (
+  boughtAmountNative: number, 
+  boughtAmountToken: number,
+  chainId: number = 501
+) => {
+  const nativePrice = chainId === 0 ? BNB_PRICE : SOL_PRICE;
+  const nativeDivisor = chainId === 0 ? 1 : 1e9;
+  const tokenDivisor = chainId === 0 ? 1 : 1e6;
+  const tokenAmount = formatNumber(boughtAmountToken);
+  
+  const amountUSD = (boughtAmountNative / nativeDivisor) * nativePrice;
+  const price = boughtAmountToken > 0 
+    ? ((boughtAmountNative / nativeDivisor) / (boughtAmountToken / tokenDivisor)) * nativePrice 
+    : 0;
+  
+  return {
+    amountUSD,
+    tokenAmount,
+    price,
+    formattedAmount: `${amountUSD.toFixed(2)}`,
+    formattedPrice: `${formatPriceGmgn(price)}`
+  };
+};
+
+/**
+ * Calculate sold amount in USD and average price
+ */
+export const calculateSold = (
+  soldAmountNative: number, 
+  soldAmountToken: number,
+  chainId: number = 501
+) => {
+  const nativePrice = chainId === 0 ? BNB_PRICE : SOL_PRICE;
+  const nativeDivisor = chainId === 0 ? 1 : 1e9;
+  const tokenDivisor = chainId === 0 ? 1 : 1e6;
+  const tokenAmount = formatNumber(soldAmountToken);
+  
+  const amountUSD = (soldAmountNative / nativeDivisor) * nativePrice;
+  const price = soldAmountToken > 0 
+    ? ((soldAmountNative / nativeDivisor) / (soldAmountToken / tokenDivisor)) * nativePrice 
+    : 0;
+  
+  return {
+    amountUSD,
+    price,
+    tokenAmount,
+    formattedAmount: `${amountUSD.toFixed(2)}`,
+    formattedPrice: `${formatPriceGmgn(price)}`
+  };
+};
+
+/**
+ * Calculate total profit (Realized PnL + Unrealized PnL)
+ */
+export const calculateTotalProfit = (
+  boughtAmountNative: number,
+  boughtAmountToken: number,
+  soldAmountNative: number,
+  soldAmountToken: number,
+  quote: number,
+  chainId: number = 501
+) => {
+  const nativePrice = chainId === 0 ? BNB_PRICE : SOL_PRICE;
+  const nativeDivisor = chainId === 0 ? 1 : 1e9;
+  const tokenDivisor = chainId === 0 ? 1 : 1e6;
+  const quoteDivisor = chainId === 0 ? 1 : 1e9;
+  
+  // Normalize values
+  const boughtNative = boughtAmountNative / nativeDivisor;
+  const soldNative = soldAmountNative / nativeDivisor;
+  const boughtToken = boughtAmountToken / tokenDivisor;
+  const soldToken = soldAmountToken / tokenDivisor;
+  
+  // Realized PnL
+  const avgBuyPrice = boughtToken > 0 ? boughtNative / boughtToken : 0;
+  const firstAmountSold = avgBuyPrice * soldToken;
+  const RPnl = soldNative - firstAmountSold;
+  const RPnlPercent = soldNative > 0 ? (RPnl / soldNative) * 100 : 0;
+  const RPnlUSD = RPnl * nativePrice;
+  
+  // Unrealized PnL
+  const remainingTokens = boughtToken - soldToken;
+  const remainingNative = boughtNative - soldNative;
+  const UPnl = (remainingTokens * quote / quoteDivisor) - (remainingNative * avgBuyPrice);
+  const UPnlPercent = remainingNative > 0 ? (UPnl / remainingNative) * 100 : 0;
+  const UPnlUSD = UPnl * nativePrice;
+  
+  // Total Profit
+  const totalProfitNative = RPnl + UPnl;
+  const totalProfitUSD = totalProfitNative * nativePrice;
+  
+  // Calculate total percentage (weighted average)
+  const realizedWeight = soldNative > 0 ? soldNative / boughtNative : 0;
+  const unrealizedWeight = 1 - realizedWeight;
+  const totalPercent = (RPnlPercent * realizedWeight) + (UPnlPercent * unrealizedWeight);
+  
+  // Treat very small values as zero
+  const threshold = 0.00001;
+  const normalizedRPnlUSD = Math.abs(RPnlUSD) < threshold ? 0 : RPnlUSD;
+  const normalizedRPnlPercent = Math.abs(RPnlPercent) < threshold ? 0 : RPnlPercent;
+  const normalizedUPnlUSD = Math.abs(UPnlUSD) < threshold ? 0 : UPnlUSD;
+  const normalizedUPnlPercent = Math.abs(UPnlPercent) < threshold ? 0 : UPnlPercent;
+  const normalizedTotalUSD = Math.abs(totalProfitUSD) < threshold ? 0 : totalProfitUSD;
+  const normalizedTotalPercent = Math.abs(totalPercent) < threshold ? 0 : totalPercent;
+  
+  // Helper function to format with sign (no sign for zero)
+  const formatWithSign = (value: number): string => {
+    if (value === 0) return '';
+    return value >= 0 ? '+' : '';
+  };
+  
+  // Determine color state (null for zero = gray)
+  const getRPnlState = () => {
+    if (normalizedRPnlUSD === 0) return null;
+    return normalizedRPnlUSD >= 0;
+  };
+  
+  const getUPnlState = () => {
+    if (normalizedUPnlUSD === 0) return null;
+    return normalizedUPnlUSD >= 0;
+  };
+  
+  const getTotalState = () => {
+    if (normalizedTotalUSD === 0) return null;
+    return normalizedTotalUSD >= 0;
+  };
+  
+  return {
+    RPnl,
+    RPnlPercent,
+    RPnlUSD,
+    formattedRPnl: `${normalizedRPnlUSD.toFixed(3)} (${formatWithSign(normalizedRPnlPercent)}${normalizedRPnlPercent.toFixed(2)}%)`,
+    isRPnlPositive: getRPnlState(),
+    UPnl,
+    UPnlPercent,
+    UPnlUSD,
+    formattedUPnl: `${normalizedUPnlUSD.toFixed(3)} (${formatWithSign(normalizedUPnlPercent)}${normalizedUPnlPercent.toFixed(2)}%)`,
+    isUPnlPositive: getUPnlState(),
+    totalProfit: totalProfitNative,
+    totalProfitSOL: totalProfitNative,
+    totalProfitUSD,
+    totalPercent,
+    formattedTotal: `${normalizedTotalUSD.toFixed(2)}`,
+    formattedPercent: `${formatWithSign(normalizedTotalPercent)}${normalizedTotalPercent.toFixed(2)}%`,
+    formattedDisplay: `${normalizedTotalUSD.toFixed(3)} (${formatWithSign(normalizedTotalPercent)}${normalizedTotalPercent.toFixed(2)}%)`,
+    isPositive: getTotalState()
+  };
+};
+
+/**
+ * Format holding duration with proper suffix
+ */
+export const formatHoldingDuration = (duration: string): string => {
+  // Duration comes as "17h", "2d", "30m", etc.
+  // Just return as is since backend already formats it
+  return duration;
+};

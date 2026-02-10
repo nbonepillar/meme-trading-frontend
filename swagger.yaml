@@ -1,0 +1,1435 @@
+openapi: 3.0.3
+info:
+  title: Crypto Trading Platform API
+  description: |
+    Complete API documentation for the crypto trading platform.
+    Includes REST APIs and WebSocket connections for real-time data.
+    
+    Base URL: http://192.168.1.47:8080
+    WebSocket URL: ws://192.168.1.47:8081/ws
+  version: 1.0.0
+  contact:
+    name: API Support
+    
+servers:
+  - url: http://192.168.1.47:8080
+    description: Backend API Server
+  - url: ws://192.168.1.47:8081
+    description: WebSocket Server
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization endpoints
+  - name: Trading
+    description: Buy and sell token operations
+  - name: Wallet
+    description: Wallet balance, deposit, and withdrawal operations
+  - name: Tokens
+    description: Token information, holdings, and transaction history
+  - name: Token Details
+    description: Detailed token information including holders and positions
+  - name: WebSocket
+    description: Real-time data streaming via WebSocket connections
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from login or email verification
+      
+  schemas:
+    # Authentication Schemas
+    SignUpRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          minLength: 6
+          example: password123
+          
+    SignUpResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        uuid:
+          type: string
+          format: uuid
+          description: User UUID for email verification
+        message:
+          type: string
+        status:
+          type: integer
+          description: Backend status code (0 = success)
+          
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: password123
+          
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        token:
+          type: string
+          description: JWT authentication token
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+            email:
+              type: string
+        message:
+          type: string
+        status:
+          type: integer
+          description: Backend status code (0 = success)
+          
+    VerifyEmailRequest:
+      type: object
+      required:
+        - uuid
+        - code
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: UUID received from signup
+        code:
+          type: string
+          description: Verification code sent to email
+          example: "123456"
+          
+    VerifyEmailResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        token:
+          type: string
+          description: JWT authentication token
+        message:
+          type: string
+        status:
+          type: integer
+          
+    ResetPasswordRequest:
+      type: object
+      required:
+        - email
+        - oldpassword
+        - newpassword
+      properties:
+        email:
+          type: string
+          format: email
+        oldpassword:
+          type: string
+        newpassword:
+          type: string
+          minLength: 6
+          
+    LogoutResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+          
+    # Trading Schemas
+    BuyTradeRequest:
+      type: object
+      required:
+        - chain_id
+        - token_address
+        - amount
+        - slippage_bps
+      properties:
+        chain_id:
+          type: integer
+          description: Blockchain chain ID (501 for Solana)
+          example: 501
+        token_address:
+          type: string
+          description: Token contract address
+          example: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+        amount:
+          type: string
+          description: Amount to buy in native currency (SOL)
+          example: "0.1"
+        slippage_bps:
+          type: integer
+          description: Slippage tolerance in basis points (0-10000)
+          minimum: 0
+          maximum: 10000
+          example: 500
+          
+    BuyTradeResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        trade_id:
+          type: string
+          description: Unique trade identifier
+        message:
+          type: string
+        error:
+          type: string
+          
+    SellTradeRequest:
+      type: object
+      required:
+        - chain_id
+        - token_address
+        - amount
+      properties:
+        chain_id:
+          type: integer
+          description: Blockchain chain ID (501 for Solana)
+          example: 501
+        token_address:
+          type: string
+          description: Token contract address
+        amount:
+          type: string
+          description: Amount of tokens to sell
+          example: "100.5"
+          
+    SellTradeResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        trade_id:
+          type: string
+        message:
+          type: string
+        error:
+          type: string
+          
+    # Wallet Schemas
+    WalletBalance:
+      type: object
+      properties:
+        chain_id:
+          type: integer
+        balance:
+          type: string
+          description: Balance in native currency
+        currency:
+          type: string
+          example: "SOL"
+          
+    WalletBalanceResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        balances:
+          type: array
+          items:
+            $ref: '#/components/schemas/WalletBalance'
+        message:
+          type: string
+        status:
+          type: integer
+          
+    DepositResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        data:
+          type: object
+          properties:
+            wallet_address:
+              type: string
+              description: Deposit wallet address
+            chain_id:
+              type: integer
+        message:
+          type: string
+          
+    WithdrawRequest:
+      type: object
+      required:
+        - chain_id
+        - to_wallet
+        - amount
+      properties:
+        chain_id:
+          type: integer
+          example: 501
+        to_wallet:
+          type: string
+          description: Destination wallet address
+        amount:
+          type: string
+          description: Amount to withdraw
+          
+    WithdrawResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        data:
+          type: object
+          properties:
+            success:
+              type: boolean
+            tx_hash:
+              type: string
+              description: Transaction hash
+        message:
+          type: string
+
+    # Token Schemas
+    Holding:
+      type: object
+      properties:
+        id:
+          type: integer
+        chain_id:
+          type: integer
+        token_address:
+          type: string
+        type:
+          type: integer
+          description: Transaction type
+        amount_native:
+          type: number
+          description: Amount in native currency (lamports)
+        amount_token:
+          type: number
+          description: Amount in tokens
+        created_at:
+          type: integer
+          description: Unix timestamp
+        balance:
+          type: string
+        updated_at:
+          type: integer
+        name:
+          type: string
+        symbol:
+          type: string
+        meta_data:
+          type: string
+          
+    HoldingsResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        holdings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Holding'
+        total:
+          type: integer
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+          
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+        chain_id:
+          type: integer
+        token_address:
+          type: string
+        tx_hash:
+          type: string
+        type:
+          type: integer
+          description: 0 = Sell, 1 = Buy
+          enum: [0, 1]
+        amount_native:
+          type: number
+        amount_token:
+          type: number
+        created_at:
+          type: integer
+          description: Unix timestamp
+        name:
+          type: string
+        symbol:
+          type: string
+        meta_data:
+          type: string
+          
+    TransactionsHistoryResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+        total:
+          type: integer
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+          
+    Position:
+      type: object
+      properties:
+        id:
+          type: integer
+        chain_id:
+          type: integer
+        token_address:
+          type: string
+        tx_hash:
+          type: string
+        type:
+          type: integer
+          description: 0 = Sell, 1 = Buy
+          enum: [0, 1]
+        amount_native:
+          type: number
+        amount_token:
+          type: number
+        created_at:
+          type: integer
+          
+    PositionsResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        positions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Position'
+        total:
+          type: integer
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+          
+    Holder:
+      type: object
+      properties:
+        wallet_address:
+          type: string
+        balance:
+          type: string
+        percent:
+          type: number
+          description: Percentage of total supply
+          
+    HoldersResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        holders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Holder'
+        total:
+          type: integer
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+          
+    Pagination:
+      type: object
+      properties:
+        offset:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        has_more:
+          type: boolean
+          
+    # WebSocket Schemas
+    TokenData:
+      type: object
+      properties:
+        c:
+          type: string
+          description: Chain ID
+        a:
+          type: string
+          description: Token address
+        s:
+          type: string
+          description: Symbol
+        n:
+          type: string
+          description: Name
+        i:
+          type: string
+          description: Image URL
+        ts:
+          type: string
+          description: Total supply
+        d:
+          type: integer
+          description: Decimals
+        ct:
+          type: integer
+          description: Created at timestamp
+        m:
+          type: boolean
+          description: Migrated status
+        sa:
+          type: string
+          description: Sold amount
+        v:
+          type: string
+          description: Volume 24h
+        bs:
+          type: string
+          description: Bonding status
+        l:
+          type: string
+          description: Liquidity
+        h:
+          type: integer
+          description: Holders count
+        t:
+          type: integer
+          description: Transactions 24h
+        st:
+          type: integer
+          description: Sell transactions
+        bt:
+          type: integer
+          description: Buy transactions
+        mc:
+          type: string
+          description: Market cap
+        p:
+          type: string
+          description: Price
+        p24:
+          type: string
+          description: Price change 24h
+        p7:
+          type: string
+          description: Price change 7d
+        v24:
+          type: string
+          description: Volume change 24h
+        l24:
+          type: string
+          description: Liquidity change 24h
+        h24:
+          type: integer
+          description: Holders change 24h
+        cat:
+          type: string
+          description: Category (NEW, NEAR_MIGRATE, MIGRATED)
+          enum: [NEW, NEAR_MIGRATE, MIGRATED]
+          
+    TransactionWebSocketData:
+      type: object
+      properties:
+        chain_id:
+          type: string
+        token_address:
+          type: string
+        tx_hash:
+          type: string
+        from:
+          type: string
+          description: Sender wallet address
+        to:
+          type: string
+          description: Receiver wallet address
+        amount:
+          type: string
+          description: Transaction amount
+        type:
+          type: string
+          enum: [buy, sell]
+        price:
+          type: string
+        timestamp:
+          type: integer
+        mc:
+          type: number
+          description: Market cap
+          
+    TradeCompletedData:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [buy_completed, sell_completed]
+        user_id:
+          type: string
+        token_address:
+          type: string
+        amount:
+          type: string
+        tx_hash:
+          type: string
+        status:
+          type: string
+          enum: [completed, failed, pending]
+        timestamp:
+          type: integer
+        chain_id:
+          type: string
+        trade_id:
+          type: integer
+          
+    WebSocketSubscribeMessage:
+      type: object
+      required:
+        - action
+        - channel
+      properties:
+        action:
+          type: string
+          enum: [subscribe, unsubscribe]
+        channel:
+          type: string
+          enum: [tokens, tokenTransactions, trades]
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              chainId:
+                type: string
+              tokenAddress:
+                type: string
+              category:
+                type: string
+                enum: [NEW, NEAR_MIGRATE, MIGRATED]
+                
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+        message:
+          type: string
+
+paths:
+  # Authentication Endpoints
+  /api/user/sign_up:
+    post:
+      tags:
+        - Authentication
+      summary: User registration
+      description: Register a new user account. Returns UUID for email verification.
+      operationId: signUp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpRequest'
+      responses:
+        '200':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignUpResponse'
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  /api/user/sign_in:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate user and receive JWT token
+      operationId: signIn
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: auth_token=eyJhbGc...; Path=/; HttpOnly; SameSite=Lax
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Backend service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  /api/user/verify_email:
+    post:
+      tags:
+        - Authentication
+      summary: Verify email address
+      description: Verify user email with code sent to email. Returns JWT token on success.
+      operationId: verifyEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmailRequest'
+      responses:
+        '200':
+          description: Email verified successfully
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: auth_token=eyJhbGc...; Path=/; HttpOnly; SameSite=Lax
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyEmailResponse'
+        '400':
+          description: Invalid verification code or UUID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  /rest/resetpassword:
+    post:
+      tags:
+        - Authentication
+      summary: Reset password
+      description: Change user password
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  /rest/logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      description: Logout user and invalidate token
+      operationId: logout
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+        '401':
+          description: Unauthorized - no token provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  # Trading Endpoints
+  /api/trade/buy:
+    post:
+      tags:
+        - Trading
+      summary: Buy tokens
+      description: Execute a buy order for specified token
+      operationId: buyToken
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BuyTradeRequest'
+      responses:
+        '200':
+          description: Buy order executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuyTradeResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  /api/trade/sell:
+    post:
+      tags:
+        - Trading
+      summary: Sell tokens
+      description: Execute a sell order for specified token
+      operationId: sellToken
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SellTradeRequest'
+      responses:
+        '200':
+          description: Sell order executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SellTradeResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Wallet Endpoints
+  /api/wallet/balance:
+    get:
+      tags:
+        - Wallet
+      summary: Get wallet balance
+      description: Retrieve user's wallet balances for all chains
+      operationId: getWalletBalance
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Balance retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletBalanceResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  /api/wallet/deposit:
+    get:
+      tags:
+        - Wallet
+      summary: Get deposit address
+      description: Get wallet address for depositing funds
+      operationId: getDepositAddress
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: chain_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 501
+          description: Blockchain chain ID
+      responses:
+        '200':
+          description: Deposit address retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepositResponse'
+        '400':
+          description: Missing chain_id parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  /api/wallet/withdraw:
+    post:
+      tags:
+        - Wallet
+      summary: Withdraw funds
+      description: Withdraw funds from wallet to external address
+      operationId: withdrawFunds
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WithdrawRequest'
+      responses:
+        '200':
+          description: Withdrawal successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WithdrawResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  # Token Endpoints
+  /api/tokens/holding:
+    get:
+      tags:
+        - Tokens
+      summary: Get user holdings
+      description: Retrieve user's token holdings with pagination
+      operationId: getUserHoldings
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+          description: Pagination offset
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+          description: Number of items per page
+      responses:
+        '200':
+          description: Holdings retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HoldingsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  /api/tokens/history:
+    get:
+      tags:
+        - Tokens
+      summary: Get transaction history
+      description: Retrieve user's transaction history with optional filters
+      operationId: getTransactionHistory
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: chainId
+          in: query
+          schema:
+            type: integer
+          description: Filter by chain ID
+        - name: tokenAddress
+          in: query
+          schema:
+            type: string
+          description: Filter by token address
+        - name: type
+          in: query
+          schema:
+            type: integer
+            enum: [0, 1]
+          description: Filter by transaction type (0=Sell, 1=Buy)
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+          description: Pagination offset
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+          description: Number of items per page
+      responses:
+        '200':
+          description: Transaction history retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionsHistoryResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  # Token Detail Endpoints
+  /api/tokens/{chainId}/{tokenAddress}/positions:
+    get:
+      tags:
+        - Token Details
+      summary: Get token positions
+      description: Retrieve all positions (trades) for a specific token
+      operationId: getTokenPositions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: chainId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 501
+          description: Blockchain chain ID
+        - name: tokenAddress
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Token contract address
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+          description: Pagination offset
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+          description: Number of items per page
+      responses:
+        '200':
+          description: Positions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PositionsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  /api/tokens/{chainId}/{tokenAddress}/holders:
+    get:
+      tags:
+        - Token Details
+      summary: Get token holders
+      description: Retrieve list of token holders with their balances
+      operationId: getTokenHolders
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: chainId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 501
+          description: Blockchain chain ID
+        - name: tokenAddress
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Token contract address
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+          description: Pagination offset
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+          description: Number of items per page
+      responses:
+        '200':
+          description: Holders retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HoldersResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  /api/metadata:
+    get:
+      tags:
+        - Tokens
+      summary: Get token metadata
+      description: Proxy endpoint to fetch token metadata from external URL
+      operationId: getTokenMetadata
+      parameters:
+        - name: url
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uri
+          description: URL to fetch metadata from
+      responses:
+        '200':
+          description: Metadata retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Token metadata (structure varies by source)
+        '400':
+          description: URL parameter is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Failed to fetch metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+# WebSocket Documentation
+x-websocket-channels:
+  tokens:
+    description: |
+      Real-time token updates stream. Provides live updates for tokens in different categories.
+      
+      **Connection URL:** ws://192.168.1.47:8081/ws
+      
+      **Subscribe Message:**
+      ```json
+      {
+        "action": "subscribe",
+        "channel": "tokens",
+        "data": [
+          {
+            "chainId": "501",
+            "category": "NEW"
+          }
+        ]
+      }
+      ```
+      
+      **Categories:**
+      - NEW: Newly created tokens
+      - NEAR_MIGRATE: Tokens close to migration
+      - MIGRATED: Migrated tokens
+      
+      **Message Types:**
+      - `snapshot`: Initial data load (array of tokens)
+      - `update`: Token data update (single or array)
+      - `add`: New token added (single token)
+      - `remove`: Token removed (single token)
+      
+      **Unsubscribe Message:**
+      ```json
+      {
+        "action": "unsubscribe",
+        "channel": "tokens",
+        "data": [
+          {
+            "chainId": "501",
+            "category": "NEW"
+          }
+        ]
+      }
+      ```
+      
+      **Response Format:**
+      ```json
+      {
+        "channel": "tokens",
+        "type": "update",
+        "data": [
+          {
+            "c": "501",
+            "a": "token_address",
+            "s": "SYMBOL",
+            "n": "Token Name",
+            "p": "0.00123",
+            "mc": "1000000",
+            "v": "50000",
+            "cat": "NEW"
+          }
+        ],
+        "timestamp": 1234567890
+      }
+      ```
+      
+  tokenTransactions:
+    description: |
+      Real-time transaction updates for specific tokens.
+      
+      **Connection URL:** ws://192.168.1.47:8081/ws
+      
+      **Subscribe Message:**
+      ```json
+      {
+        "action": "subscribe",
+        "channel": "tokenTransactions",
+        "data": [
+          {
+            "chainId": "501",
+            "tokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+          }
+        ]
+      }
+      ```
+      
+      **Message Types:**
+      - `snapshot`: Initial transaction history (array of transactions)
+      - `update`: New transaction (single transaction)
+      - `transaction`: Real-time transaction update
+      
+      **Unsubscribe Message:**
+      ```json
+      {
+        "action": "unsubscribe",
+        "channel": "tokenTransactions",
+        "data": [
+          {
+            "chainId": "501",
+            "tokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+          }
+        ]
+      }
+      ```
+      
+      **Response Format (snapshot):**
+      ```json
+      {
+        "channel": "tokenTransactions",
+        "type": "snapshot",
+        "data": {
+          "chainId": "501",
+          "tokenAddress": "token_address",
+          "transactions": [
+            {
+              "id": 123,
+              "chain_id": "501",
+              "token_address": "token_address",
+              "tx_hash": "transaction_hash",
+              "wallet_address": "wallet_address",
+              "amount_native": 1000000000,
+              "amount_token": 100000000000,
+              "type": "buy",
+              "timestamp": 1234567890
+            }
+          ]
+        },
+        "timestamp": 1234567890
+      }
+      ```
+      
+      **Response Format (update):**
+      ```json
+      {
+        "channel": "tokenTransactions",
+        "type": "transaction",
+        "data": {
+          "chain_id": "501",
+          "token_address": "token_address",
+          "tx_hash": "transaction_hash",
+          "from": "sender_wallet",
+          "to": "receiver_wallet",
+          "amount": "1000000000",
+          "type": "buy",
+          "price": "0.00123",
+          "timestamp": 1234567890,
+          "mc": 1000000
+        },
+        "timestamp": 1234567890
+      }
+      ```
+      
+  trades:
+    description: |
+      Real-time trade completion notifications for user's trades.
+      
+      **Connection URL:** ws://192.168.1.47:8081/ws
+      
+      **Subscribe Message:**
+      ```json
+      {
+        "action": "subscribe",
+        "channel": "trades",
+        "data": [
+          {
+            "tokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+          }
+        ]
+      }
+      ```
+      
+      **Message Types:**
+      - `buy_completed`: Buy order completed
+      - `sell_completed`: Sell order completed
+      
+      **Unsubscribe Message:**
+      ```json
+      {
+        "action": "unsubscribe",
+        "channel": "trades",
+        "data": [
+          {
+            "tokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+          }
+        ]
+      }
+      ```
+      
+      **Response Format:**
+      ```json
+      {
+        "channel": "trades",
+        "type": "buy_completed",
+        "data": {
+          "type": "buy_completed",
+          "user_id": "user_id",
+          "token_address": "token_address",
+          "amount": "0.1",
+          "tx_hash": "transaction_hash",
+          "status": "completed",
+          "timestamp": 1234567890,
+          "chain_id": "501",
+          "trade_id": 12345
+        },
+        "timestamp": 1234567890
+      }
+      ```
+      
+  ping-pong:
+    description: |
+      WebSocket keep-alive mechanism.
+      
+      **Server sends:**
+      ```json
+      {
+        "type": "ping"
+      }
+      ```
+      
+      **Client should respond:**
+      ```json
+      {
+        "type": "pong"
+      }
+      ```
+      
+      This keeps the connection alive and helps detect disconnections.

@@ -1,0 +1,143 @@
+﻿=== app ===
+Folder PATH listing for volume Data
+Volume serial number is 00000020 96F0:2770
+D:\MEMECOIN\BINGOBIT\APP
+|   favicon.ico
+|   globals.css
+|   layout.tsx
+|   page.tsx
+|   
++---(auth)
+|   |   layout.tsx
+|   |   
+|   +---login
+|   |       page.tsx
+|   |       
+|   \---signup
+|           page.tsx
+|           
++---(dashboard)
+|   |   layout.tsx
+|   |   
+|   +---copy-trade
+|   |       page.tsx
+|   |       
+|   +---monitor
+|   |       page.tsx
+|   |       
+|   +---portfolio
+|   |       page.tsx
+|   |       
+|   +---rewards
+|   |       page.tsx
+|   |       
+|   +---track
+|   |       page.tsx
+|   |       
+|   +---trenches
+|   |   |   layout.tsx
+|   |   |   loading.tsx
+|   |   |   page.tsx
+|   |   |   
+|   |   \---_components
+|   |           trenches-client.tsx
+|   |           
+|   \---trending
+|       |   layout.tsx
+|       |   page.tsx
+|       |   
+|       +---new-pair
+|       |       page.tsx
+|       |       
+|       +---nextbc
+|       |       page.tsx
+|       |       
+|       +---pump-live
+|       |       page.tsx
+|       |       
+|       +---surge
+|       |       page.tsx
+|       |       
+|       \---xstocks
+|               page.tsx
+|               
+\---api
+    \---auth
+        \---[...nextauth]
+=== components ===
+Folder PATH listing for volume Data
+Volume serial number is 000000FC 96F0:2770
+D:\MEMECOIN\BINGOBIT\COMPONENTS
++---common
+|   +---debug
+|   |       websocket-status.tsx
+|   |       
+|   \---layout
+|           bottom-bar.tsx
+|           main-layout.tsx
+|           resizable-sidebar.tsx
+|           sidebar-tabs.tsx
+|           sub-bar.tsx
+|           top-bar.tsx
+|           x-tracker.tsx
+|           
++---features
+|   +---token
+|   |       token-avatar.tsx
+|   |       token-buttons.tsx
+|   |       token-card.tsx
+|   |       token-grid.tsx
+|   |       token-info.tsx
+|   |       token-name.tsx
+|   |       token-social.tsx
+|   |       token-timer.tsx
+|   |       virtual-token-list.tsx
+|   |       
+|   \---trench
+|           trench-panel-header.tsx
+|           trench-token-card.tsx
+|           
+\---ui
+        badge.tsx
+        button.tsx
+        card.tsx
+        input.tsx
+        label.tsx
+        progress.tsx
+        radio-group.tsx
+        resizable.tsx
+        scroll-area.tsx
+        separator.tsx
+        switch.tsx
+        
+=== hooks ===
+Folder PATH listing for volume Data
+Volume serial number is 00000038 96F0:2770
+D:\MEMECOIN\BINGOBIT\HOOKS
+    useWebSocketTokensZustand.ts
+    
+No subfolders exist 
+
+=== lib ===
+Folder PATH listing for volume Data
+Volume serial number is 000000FA 96F0:2770
+D:\MEMECOIN\BINGOBIT\LIB
+|   apollo-client.ts
+|   formatters.ts
+|   token-fetcher.ts
+|   utils.ts
+|   websocket.ts
+|   
+\---graphql
+        queries.ts
+        
+=== store ===
+Folder PATH listing for volume Data
+Volume serial number is 000000FA 96F0:2770
+D:\MEMECOIN\BINGOBIT\STORE
+    timerStore.ts
+    tokenStore.ts
+    uiStore.ts
+    
+No subfolders exist 
+
